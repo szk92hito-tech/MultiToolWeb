@@ -1,0 +1,407 @@
+﻿@page "/image-resizer"
+@rendermode InteractiveServer
+
+@using ImageResizerWeb
+@using Microsoft.AspNetCore.Components.Web
+@using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.JSInterop
+@using SixLabors.ImageSharp
+@using SixLabors.ImageSharp.PixelFormats
+@using System.IO.Compression
+@using SixLabors.ImageSharp.Processing
+@inject IJSRuntime JS
+
+<PageTitle>画像簡単縮小ツール</PageTitle>
+
+<div class="container">
+
+    <div class="info-box">
+
+        <h2>🖼️ 画像をまとめて、ちょうどいいサイズに</h2>
+
+        <p>
+            写真をかんたんに見やすいサイズへ縮小できます。
+           「ファイルを選択」から画像を選択してください。
+           　※枚数が多いと少し時間かかる場合があります
+        </p>
+
+    </div>
+
+    <h4>仕上がりサイズ</h4>
+
+    <fieldset>
+
+        <h4>定型サイズ</h4>
+
+        <div class="size-buttons">
+
+            <button class="size-btn"
+                    @onclick="() => SetSize(1280, 1280)">
+                1280×1280
+            </button>
+
+            <button class="size-btn"
+                    @onclick="() => SetSize(1024, 1024)">
+                1024×1024
+            </button>
+
+            <button class="size-btn"
+                    @onclick="() => SetSize(800, 800)">
+                800×800
+            </button>
+
+            <button class="size-btn"
+                    @onclick="() => SetSize(400, 400)">
+                400×400
+            </button>
+
+            <button class="size-btn"
+                    @onclick="() => SetSize(320, 320)">
+                320×320
+            </button>
+
+            <button class="size-btn"
+                    @onclick="() => SetSize(160, 160)">
+                160×160
+            </button>
+
+        </div>
+
+        <h4>縮小予定サイズ</h4>
+
+        <div class="input-area">
+
+            <div class="input-card">
+
+                <span>幅</span>
+
+                <input @bind="Width" />
+
+                <span>px</span>
+
+            </div>
+
+            <div class="input-card">
+
+                <span>高さ</span>
+
+                <input @bind="Height" />
+
+                <span>px</span>
+
+            </div>
+
+        </div>
+
+    </fieldset>
+
+    @*
+        別で実装予定「ドラッグ&ドロップ機能」
+        <div class="drop-area">
+
+        <h1>📂</h1>
+
+        <h2>ここに画像をドラッグ＆ドロップ</h2>
+
+        <p>
+            ドロップ後に一覧を確認して保存してください
+        </p>
+
+        <p>
+            JPG / PNG / WEBP / BMP
+        </p>
+
+    </div>
+*@
+
+    <h4>画像選択</h4>
+
+    <InputFile OnChange="OnFilesSelected"
+               Multiple />
+
+    <div class="file-list-card">
+
+        <table class="file-table">
+
+            <thead>
+                <tr>
+                    <th>ファイル名</th>
+                    <th>元容量(KB)</th>
+                    <th>元サイズ</th>
+                    <th>予測容量(KB)</th>
+                    <th>縮小後サイズ</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                @foreach (var file in files)
+                {
+                    <tr>
+                        <td>@file.FileName</td>
+                        <td>@(file.FileSize / 1024)</td>
+                        <td>@file.OriginalSize</td>
+                        <td>@file.EstimatedSize</td>
+                        <td>@file.ResizedSize</td>
+                    </tr>
+                }
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+    <button class="save-btn"
+            @onclick="SaveAll">
+        ✨ すべて保存
+    </button>
+
+    <p>@statusMessage</p>
+
+</div>
+
+@code {
+
+    private int Width = 400;
+    private int Height = 400;
+
+    private string SelectedSize = "400x400";
+
+    private List<ImageFileInfo> files = new();
+
+    private void SetSize(
+    int width,
+    int height)
+    {
+        Width = width;
+        Height = height;
+
+        SelectedSize = $"{width}x{height}";
+
+        RecalculateAll();
+    }
+
+    private async Task OnFilesSelected(
+    InputFileChangeEventArgs e)
+{
+    try
+    {
+        files.Clear();
+
+        foreach (var file in e.GetMultipleFiles(200))
+        {
+            using var stream =
+                file.OpenReadStream(
+                    maxAllowedSize: 50 * 1024 * 1024);
+
+            using var image =
+                await Image.LoadAsync<Rgba32>(stream);
+
+            double ratioX =
+                (double)Width / image.Width;
+
+            double ratioY =
+                (double)Height / image.Height;
+
+            double ratio =
+                Math.Min(ratioX, ratioY);
+
+            ratio =
+                Math.Min(ratio, 1.0);
+
+            int newWidth =
+                (int)(image.Width * ratio);
+
+            int newHeight =
+                (int)(image.Height * ratio);
+
+            double originalArea =
+                image.Width * image.Height;
+
+            double resizedArea =
+                newWidth * newHeight;
+
+            double areaRatio =
+                resizedArea / originalArea;
+
+            long estimatedKb =
+                (long)((file.Size / 1024.0) * areaRatio);
+
+            files.Add(new ImageFileInfo
+            {
+                BrowserFile = file,
+
+                FileName = file.Name,
+
+                FileSize = file.Size,
+
+                OriginalWidth = image.Width,
+
+                OriginalHeight = image.Height,
+
+                OriginalSize =
+                    $"{image.Width}×{image.Height}",
+
+                ResizedSize =
+                    $"{newWidth}×{newHeight}",
+
+                EstimatedSize =
+                    $"{estimatedKb:N0}"
+            });
+        }
+
+        statusMessage =
+            $"{files.Count}件読み込みました";
+    }
+    catch (Exception ex)
+    {
+        statusMessage =
+            $"エラー: {ex.Message}";
+    }
+}
+
+    private string statusMessage = "";
+
+    private async Task SaveAll()
+{
+    using var zipStream =
+        new MemoryStream();
+
+    using (var archive =
+        new ZipArchive(
+            zipStream,
+            ZipArchiveMode.Create,
+            true))
+    {
+        foreach (var file in files)
+        {
+            if (file.BrowserFile is null)
+                continue;
+
+            using var inputStream =
+                file.BrowserFile.OpenReadStream(
+                    maxAllowedSize: 50 * 1024 * 1024);
+
+            using var image =
+                await Image.LoadAsync<Rgba32>(
+                    inputStream);
+
+            double ratioX =
+                (double)Width / image.Width;
+
+            double ratioY =
+                (double)Height / image.Height;
+
+            double ratio =
+                Math.Min(ratioX, ratioY);
+
+            ratio =
+                Math.Min(ratio, 1.0);
+
+            int newWidth =
+                (int)(image.Width * ratio);
+
+            int newHeight =
+                (int)(image.Height * ratio);
+
+            image.Mutate(x =>
+                x.Resize(
+                    newWidth,
+                    newHeight));
+
+            var fileNameWithoutExt =
+                Path.GetFileNameWithoutExtension(
+                    file.FileName);
+
+            var extension =
+                Path.GetExtension(
+                    file.FileName);
+
+            var extensionLower =
+                extension.ToLower();
+
+            var entry =
+                archive.CreateEntry(
+                    $"{fileNameWithoutExt}_small{extension}");
+
+            using var entryStream =
+                entry.Open();
+
+            if (extensionLower == ".png")
+            {
+                await image.SaveAsPngAsync(
+                    entryStream);
+            }
+            else
+            {
+                await image.SaveAsJpegAsync(
+                    entryStream);
+            }
+        }
+    }
+
+    zipStream.Position = 0;
+
+    var base64 =
+        Convert.ToBase64String(
+            zipStream.ToArray());
+
+    await JS.InvokeVoidAsync(
+        "downloadFile",
+        "resized-images.zip",
+        base64);
+
+    statusMessage =
+        $"{files.Count}件の画像をZIP化しました";
+}
+
+    private void RecalculateAll()
+    {
+        foreach (var file in files)
+        {
+            double ratioX =
+                (double)Width / file.OriginalWidth;
+
+            double ratioY =
+                (double)Height / file.OriginalHeight;
+
+            double ratio =
+                Math.Min(ratioX, ratioY);
+
+            ratio =
+                Math.Min(ratio, 1.0);
+
+            int newWidth =
+                (int)(file.OriginalWidth * ratio);
+
+            int newHeight =
+                (int)(file.OriginalHeight * ratio);
+
+            file.ResizedSize =
+                $"{newWidth}×{newHeight}";
+
+            double originalArea =
+                file.OriginalWidth *
+                file.OriginalHeight;
+
+            double resizedArea =
+                newWidth *
+                newHeight;
+
+            double areaRatio =
+                resizedArea / originalArea;
+
+            long estimatedKb =
+                (long)((file.FileSize / 1024.0)
+                * areaRatio);
+
+            file.EstimatedSize =
+                $"{estimatedKb:N0}";
+        }
+
+        StateHasChanged();
+    }
+
+
+}
