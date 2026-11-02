@@ -3,6 +3,10 @@
   "WorkspaceRootPath": "C:\\Users\\suzuki\\Desktop\\N-STAGE\\\u9234\u6728\u30D7\u30ED\u30B0\u30E9\u30E0\\shrinking images\\ImageResizerWeb\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{802CBF98-D9A1-5AAD-A0C1-C32611EED035}|ImageResizerWeb\\ImageResizerWeb.csproj|c:\\users\\suzuki\\desktop\\n-stage\\\u9234\u6728\u30D7\u30ED\u30B0\u30E9\u30E0\\shrinking images\\imageresizerweb\\imageresizerweb\\components\\layout\\navmenu.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{802CBF98-D9A1-5AAD-A0C1-C32611EED035}|ImageResizerWeb\\ImageResizerWeb.csproj|solutionrelative:imageresizerweb\\components\\layout\\navmenu.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{802CBF98-D9A1-5AAD-A0C1-C32611EED035}|ImageResizerWeb\\ImageResizerWeb.csproj|c:\\users\\suzuki\\desktop\\n-stage\\\u9234\u6728\u30D7\u30ED\u30B0\u30E9\u30E0\\shrinking images\\imageresizerweb\\imageresizerweb\\.gitignore||{3B902123-F8A7-4915-9F01-361F908088D0}",
       "RelativeMoniker": "D:0:0:{802CBF98-D9A1-5AAD-A0C1-C32611EED035}|ImageResizerWeb\\ImageResizerWeb.csproj|solutionrelative:imageresizerweb\\.gitignore||{3B902123-F8A7-4915-9F01-361F908088D0}"
     },
@@ -27,6 +31,19 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
+              "Title": "NavMenu.razor",
+              "DocumentMoniker": "C:\\Users\\suzuki\\Desktop\\N-STAGE\\\u9234\u6728\u30D7\u30ED\u30B0\u30E9\u30E0\\shrinking images\\ImageResizerWeb\\ImageResizerWeb\\Components\\Layout\\NavMenu.razor",
+              "RelativeDocumentMoniker": "ImageResizerWeb\\Components\\Layout\\NavMenu.razor",
+              "ToolTip": "C:\\Users\\suzuki\\Desktop\\N-STAGE\\\u9234\u6728\u30D7\u30ED\u30B0\u30E9\u30E0\\shrinking images\\ImageResizerWeb\\ImageResizerWeb\\Components\\Layout\\NavMenu.razor",
+              "RelativeToolTip": "ImageResizerWeb\\Components\\Layout\\NavMenu.razor",
+              "ViewState": "AgIAABcAAAAAAAAAAAAmwDEAAAAVAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-11-02T07:46:55.969Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
               "Title": ".gitignore",
               "DocumentMoniker": "C:\\Users\\suzuki\\Desktop\\N-STAGE\\\u9234\u6728\u30D7\u30ED\u30B0\u30E9\u30E0\\shrinking images\\ImageResizerWeb\\ImageResizerWeb\\.gitignore",
               "RelativeDocumentMoniker": "ImageResizerWeb\\.gitignore",
@@ -39,7 +56,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 2,
               "Title": "ImageResizer.razor",
               "DocumentMoniker": "C:\\Users\\suzuki\\Desktop\\N-STAGE\\\u9234\u6728\u30D7\u30ED\u30B0\u30E9\u30E0\\shrinking images\\ImageResizerWeb\\ImageResizerWeb\\Components\\Pages\\ImageResizer.razor",
               "RelativeDocumentMoniker": "ImageResizerWeb\\Components\\Pages\\ImageResizer.razor",
